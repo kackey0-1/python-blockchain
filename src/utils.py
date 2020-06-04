@@ -33,4 +33,4 @@ def pprint(chains):
                         print(f'{kk:30}{vv}')
             else:
                 print(f'{k:15}{v}')
-    print(f'{"*"}*25')
+    print(f'{"*"*25}')

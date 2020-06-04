@@ -18,11 +18,12 @@ logger = logging.getLogger(__name__)
 
 # python3では、本来objectは不要
 class BlockChain(object):
-    def __init__(self, blockchain_address=None):
+    def __init__(self, blockchain_address=None, port=None):
         self.transaction_pool = []
         self.chain = []
         self.create_block(0, self.hash({}))
         self.blockchain_address = blockchain_address
+        self.port = port
     
     def create_block(self, nonce, previous_hash):
         # ソート処理を入れることによりblockの順番を保証
@@ -51,7 +52,15 @@ class BlockChain(object):
             'recipient_blockchain_address': recipient_blockchain_address,
             'value': float(value)
         })
+
+        if sender_blockchain_address == MINING_SENDER:
+            self.transaction_pool.append(transaction)
+            return True
+
         if self.verify_transaction_signature(sender_public_key, signature, transaction):
+            # if self.calculate_total_amount(sender_blockchain_address) < float(value):
+            #     logger.error({'action': 'add_transaction', 'status': 'no_value'})
+            #     return False
             self.transaction_pool.append(transaction)
             return True
         return False

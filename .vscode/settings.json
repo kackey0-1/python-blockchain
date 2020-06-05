@@ -1,4 +1,4 @@
 {
-    "python.pythonPath": "blockchain/bin/python",
+    "python.pythonPath": "blockchain\\Scripts\\python.exe",
     "python.autoComplete.extraPaths": ["c:\\Users\\USER\\develop\\workspace\\src"]
 }

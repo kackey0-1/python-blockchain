@@ -5,7 +5,7 @@ import hashlib
 from ecdsa import NIST256p
 from ecdsa import SigningKey
 
-import utils
+from modules import utils
 
 class Wallet(object):
     def __init__(self):

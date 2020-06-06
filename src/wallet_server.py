@@ -1,7 +1,7 @@
 import urllib.parse
 from flask import Flask, jsonify, render_template, request
 import requests
-import wallet
+from models import wallet
 
 app = Flask(__name__, template_folder='./templates')
 
@@ -71,6 +71,6 @@ if __name__ == '__main__':
     port = args.port
     app.config['gw'] = args.gw
 
-    app.run(host='localhost', port=port, threaded=True, debug=True)
+    app.run(host='0.0.0.0', port=port, threaded=True, debug=True)
 
 

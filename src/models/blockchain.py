@@ -35,6 +35,11 @@ class BlockChain(object):
         self.port = port
         self.mining_semaphore = threading.Semaphore(1) # 定期実行
         self.sync_neighbours_semaphore = threading.Semaphore(1)
+
+    def run(self):
+        self.sync_neighbours()
+        self.resolve_conflicts()
+        self.start_mining()
     
     def set_neighbours(self):
         self.neighbours = utils.find_neighbours(
@@ -152,8 +157,8 @@ class BlockChain(object):
         return nonce
 
     def mining(self):
-        if not self.transaction_pool:
-            return False
+        # if not self.transaction_pool:
+        #     return False
 
         self.add_transaction(
             sender_blockchain_address=MINING_SENDER,
@@ -164,9 +169,8 @@ class BlockChain(object):
         # block_chain.chain[-1] 1番最後のブロックを渡す
         previous_hash = self.hash(self.chain[-1])
         self.create_block(nonce, previous_hash)
-        logger.info({
-            'action': 'mining', 'status': 'success'
-        })
+        logger.info({'action': 'mining', 'status': 'success'})
+
         for node in self.neighbours:
             requests.put(f'http://{node}/consensus')
 
@@ -209,7 +213,7 @@ class BlockChain(object):
                 block['nonce'], MINING_DIFFICULTY):
                 return False
         
-            pre_block += 1
+            pre_block = block
             current_index += 1
         return True
 
@@ -218,17 +222,19 @@ class BlockChain(object):
         max_length = len(self.chain)
         for node in self.neighbours:
             response = requests.get(f'http://{node}/chain')
-            response_json = response.json()
-            chain = response_json['chain']
-            chain_length = len(chain)
-            if chain_length > max_length and self.valid_chain(chain):
-                max_length = chain_length
-                longest_chain = chain
+            if response.status_code == 200:
+                response_json = response.json()
+                chain = response_json['chain']
+                chain_length = len(chain)
+                if chain_length > max_length and self.valid_chain(chain):
+                    max_length = chain_length
+                    longest_chain = chain
         
         if longest_chain:
             self.chain = longest_chain
             logger.info({'action': 'resolve_conflicts', 'status': 'replaced'})
             return True
+
         logger.info({'action': 'resolve_conflicts', 'status': 'not_replaced'})
         return False
 
